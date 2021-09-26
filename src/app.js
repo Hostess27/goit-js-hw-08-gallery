@@ -68,131 +68,67 @@ const galleryRef = document.querySelector(".js-gallery");
 const lightboxRef = document.querySelector(".js-lightbox");
 const lightboxImageRef = document.querySelector(".lightbox__image");
 
-const dataOriginal = [];
+let currentIndex = 0;
 
-const createdGallery = galleryItems.reduce((acc, img) => {
-    dataOriginal.push(img);
-    let imgEl = `<li class="gallery__item"><a class="galleryLink"><img src="${img.preview}" alt="${img.description}" class="gallery__image"></a></li>`;
+const createdGallery = galleryItems.reduce((acc, img, index) => {
+    let imgEl = `<li class="gallery__item"><a class="galleryLink"><img src="${img.preview}" alt="${img.description}" data-index='${index}' data-sourse='${img.original}' class="gallery__image"></a></li>`;
     return acc + imgEl;
 }, "");
 
 galleryRef.insertAdjacentHTML("beforeend", createdGallery);
 
 galleryRef.addEventListener("click", (evt) => {
-    galleryItems.forEach((el) => {
-        if (evt.target.alt === el.description) {
-            lightboxImageRef.src = el.original;
-            lightboxImageRef.alt = el.description;
-        }
-        lightboxRef.classList.add("is-open");
-    });
+    console.log(evt.target.dataset);
+    lightboxImageRef.src = evt.target.dataset.sourse;
+    console.log(evt.target.src);
+    currentIndex = Number(evt.target.dataset.index);
+    lightboxRef.classList.add("is-open");
+    window.addEventListener("keydown", keyActiwe);
 });
 
 const buttonClose = document.querySelector(".lightbox__button");
-
-buttonClose.addEventListener("click", (evt) => {
+const cleenModal = () => {
     lightboxRef.classList.remove("is-open");
     lightboxImageRef.src = "";
     lightboxImageRef.alt = "";
-    return;
-});
+    window.removeEventListener("keydown", keyActiwe);
+};
+buttonClose.addEventListener("click", cleenModal);
 
 const lightboxOverlay = document.querySelector(".lightbox__overlay");
-lightboxOverlay.addEventListener("click", (evt) => {
-    lightboxRef.classList.remove("is-open");
-    lightboxImageRef.src = "";
-    lightboxImageRef.alt = "";
-    return;
-});
+lightboxOverlay.addEventListener("click", cleenModal);
 
-
-
-
-
-
-
-// const imgTag = document.querySelector("img");
-// console.log(imgTag);
-
-// function listenerModal() {
-//     if (imgTag.classList === "is-open") {
-//         const lightboxOverlay = document.querySelector(".lightbox__overlay");
-//         lightboxOverlay.addEventListener("click", (evt) => {
-//             lightboxRef.classList.remove("is-open");
-//             lightboxImageRef.src = "";
-//             lightboxImageRef.alt = "";s
-//             return;
-//         });
-
-//         window.addEventListener("keydown", (event) => {
-//             const currentIndex = dataOriginal.indexOf(lightboxImageRef.src);
-
-//             switch (event.key) {
-//                 case "ArrowLeft":
-//                     leftClick(currentIndex);
-//                     break;
-//                 case "ArrowRight":
-//                     rightClick(currentIndex);
-//                     break;
-//                 case "Escape":
-//                     lightboxRef.classList.remove("is-open");
-//                     lightboxImageRef.src = "";
-//                     lightboxImageRef.alt = "";
-//                     break;
-
-//                 default:
-//                     break;
-//             }
-//         });
-//     }
-// }
-
-window.addEventListener("keydown", (event) => {
-    const currentIndex = dataOriginal.indexOf(lightboxImageRef.src);
-
+function keyActiwe(event) {
     switch (event.key) {
         case "ArrowLeft":
-            leftClick(currentIndex);
+            leftClick();
             break;
         case "ArrowRight":
-            rightClick(currentIndex);
+            rightClick();
             break;
         case "Escape":
-            lightboxRef.classList.remove("is-open");
-            lightboxImageRef.src = "";
-            lightboxImageRef.alt = "";
+            cleenModal();
             break;
 
         default:
             break;
     }
-});
+}
+
+function rightClick() {
+    if (currentIndex >= galleryItems.length - 1) {
+        currentIndex = 0;
+    } else {
+        currentIndex += 1;
+    }
+    lightboxImageRef.src = galleryItems[currentIndex].original;
+}
 
 function leftClick() {
-    console.log((nextIndex -= 1));
-    lightboxImageRef.src = dataOriginal[nextIndex].original;
+    if (currentIndex - 1 < 0) {
+        currentIndex = galleryItems.length - 1;
+    } else {
+        currentIndex -= 1;
+    }
+    lightboxImageRef.src = galleryItems[currentIndex].original;
 }
-
-let nextIndex = 0;
-function rightClick() {
-    console.log((nextIndex += 1));
-    lightboxImageRef.src = dataOriginal[nextIndex].original;
-}
-
-// function leftClick(currentIndex) {
-//     if (currentIndex + 1 > galleryItems.length - 1) {
-//         currentIndex = 0;
-//     } else {
-//         currentIndex += 1;
-//     }
-//     lightboxImageRef.src = dataOriginal[currentIndex].original;
-// }
-
-// function rightClick(currentIndex) {
-//     if (currentIndex - 1 > 0) {
-//         currentIndex = dataOriginal.length - 1;
-//     } else {
-//         currentIndex -= 1;
-//     }
-//     lightboxImageRef.src = dataOriginal[currentIndex].original;
-// }
